@@ -319,10 +319,10 @@ class TemplateProcessor
      *
      * @return string|null
      */
-    public function cloneBlock($blockname, $clones = 1)
+    public function cloneBlock($blockname, $clones = 1, $limit = null)
     {
         $dom = \DOMDocument::loadXML($this->tempDocumentMainPart);
-        $nodeSets = $this->findBlocks($blockname, $dom, 'inner');
+        $nodeSets = $this->findBlocks($blockname, $dom, 'inner', $limit);
         foreach ($nodeSets as $nodeSet) {
             for ($i = 1; $i < $clones; $i++ ) {
                 foreach ($nodeSet as $node) {
@@ -330,7 +330,7 @@ class TemplateProcessor
                 }
             }
         }
-        $this->deleteNodeSets($this->findBlocks($blockname, $dom, 'outer'));
+        $this->deleteNodeSets($this->findBlocks($blockname, $dom, 'outer', $limit));
         $this->tempDocumentMainPart = $dom->saveXML();
     }
 
@@ -571,11 +571,14 @@ class TemplateProcessor
         return substr($this->tempDocumentMainPart, $startPosition, ($endPosition - $startPosition));
     }
 
-    private function findBlocks($blockname, $domDoc, $type = 'complete')
+    private function findBlocks($blockname, $domDoc, $type = 'complete', $limit = null)
     {
         $domXpath = new \DOMXpath($domDoc);
         $max = $domXpath->query('//w:p[contains(., "${'.$blockname.'}")]')->length;
         $nodeLists = array();
+        if ($limit !== null){
+            $max = min($max, $limit);
+        }
         for ($i = 1; $i <= $max; $i++) {
             $query = join(' | ', self::getQueryByType($type));
 
