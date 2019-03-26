@@ -217,9 +217,11 @@ class TemplateProcessor
 
         if (is_array($replace)) {
             foreach ($replace as &$item) {
+                $replace = str_replace('&', '&amp;', $replace);
                 $item = self::ensureUtf8Encoded($item);
             }
         } else {
+            $replace = str_replace('&', '&amp;', $replace);
             $replace = self::ensureUtf8Encoded($replace);
         }
 
